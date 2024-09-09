@@ -13,7 +13,6 @@ export default function Dashboard(props) {
     const handleRoleChange = (e) => setSelectedRole(e.target.value);
     const handlePermissionChange = (e) => setSelectedPermission(e.target.value);
 
-
     const assignRole = async () => {
         if (!roles.includes(selectedRole)) return; // Validar que el rol sea válido
 
@@ -64,12 +63,12 @@ export default function Dashboard(props) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
-                            <p>You're logged in!</p>
+                            <p>Bienvenido!</p>
 
                             {/* Mostrar roles */}
                             {auth.roles.length > 0 && (
                                 <div>
-                                    <h3 className="mt-4 font-bold">Roles:</h3>
+                                    <h3 className="mt-4 font-bold">Tu rol es:</h3>
                                     <ul>
                                         {auth.roles.map((role, index) => (
                                             <li key={index}>{role}</li>
@@ -81,7 +80,7 @@ export default function Dashboard(props) {
                             {/* Mostrar permisos */}
                             {auth.permissions.length > 0 && (
                                 <div>
-                                    <h3 className="mt-4 font-bold">Permissions:</h3>
+                                    <h3 className="mt-4 font-bold">Tienes permiso para:</h3>
                                     <ul>
                                         {auth.permissions.map((permission, index) => (
                                             <li key={index}>{permission}</li>
@@ -90,29 +89,34 @@ export default function Dashboard(props) {
                                 </div>
                             )}
 
-                            {/* Formulario para asignar rol */}
-                            <div>
-                                <h3 className="mt-4 font-bold">Assign Role</h3>
-                                <select value={selectedRole} onChange={handleRoleChange}>
-                                    <option value="">Select Role</option>
-                                    {roles.map((role) => (
-                                        <option key={role} value={role}>{role}</option>
-                                    ))}
-                                </select>
-                                <button onClick={assignRole}>Assign Role</button>
-                            </div>
+                            {/* Solo mostrar opciones de asignación si el usuario es 'admin' */}
+                            {auth.roles.includes('admin') && (
+                                <>
+                                    {/* Formulario para asignar rol */}
+                                    <div>
+                                        <h3 className="mt-4 font-bold">Assign Role</h3>
+                                        <select value={selectedRole} onChange={handleRoleChange}>
+                                            <option value="">Select Role</option>
+                                            {roles.map((role) => (
+                                                <option key={role} value={role}>{role}</option>
+                                            ))}
+                                        </select>
+                                        <button onClick={assignRole}>Assign Role</button>
+                                    </div>
 
-                            {/* Formulario para asignar permiso */}
-                            <div>
-                                <h3 className="mt-4 font-bold">Assign Permission</h3>
-                                <select value={selectedPermission} onChange={handlePermissionChange}>
-                                    <option value="">Select Permission</option>
-                                    {permissions.map((permission) => (
-                                        <option key={permission} value={permission}>{permission}</option>
-                                    ))}
-                                </select>
-                                <button onClick={assignPermission}>Assign Permission</button>
-                            </div>
+                                    {/* Formulario para asignar permiso */}
+                                    <div>
+                                        <h3 className="mt-4 font-bold">Assign Permission</h3>
+                                        <select value={selectedPermission} onChange={handlePermissionChange}>
+                                            <option value="">Select Permission</option>
+                                            {permissions.map((permission) => (
+                                                <option key={permission} value={permission}>{permission}</option>
+                                            ))}
+                                        </select>
+                                        <button onClick={assignPermission}>Assign Permission</button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

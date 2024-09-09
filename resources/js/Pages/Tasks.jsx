@@ -19,8 +19,7 @@ export default function Tasks(props) {
     useEffect(() => {
         const getTasks = async () => {
             try {
-                const data = await fetchTasks();
-                console.log('Fetched tasks:', data);
+                const data = await fetchTasks();;
 
                 // Guardar tareas, roles y permisos en el estado
                 setTasks(Array.isArray(data.tasks) ? data.tasks : []);
