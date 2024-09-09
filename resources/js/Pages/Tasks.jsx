@@ -17,7 +17,7 @@ export default function Tasks(props) {
     useEffect(() => {
         const getTasks = async () => {
             try {
-                console.log('Token used for request:', props.auth.token); // Verifica el token
+                // console.log('Token used for request:', props.auth.token);
                 const data = await fetchTasks();
                 setTasks(data); // Ajusta según la estructura de datos
             } catch (error) {
