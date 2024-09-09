@@ -8,6 +8,8 @@ import '../../css/TaskManager.css';
 
 export default function Tasks(props) {
     const [tasks, setTasks] = useState([]);
+    const [roles, setRoles] = useState([]); // Guardar roles
+    const [permissions, setPermissions] = useState([]); // Guardar permisos
     const [editingTask, setEditingTask] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,9 +19,13 @@ export default function Tasks(props) {
     useEffect(() => {
         const getTasks = async () => {
             try {
-                // console.log('Token used for request:', props.auth.token);
                 const data = await fetchTasks();
-                setTasks(data); // Ajusta según la estructura de datos
+                console.log('Fetched tasks:', data);
+
+                // Guardar tareas, roles y permisos en el estado
+                setTasks(Array.isArray(data.tasks) ? data.tasks : []);
+                setRoles(data.roles || []); // Guardar roles
+                setPermissions(data.permissions || []); // Guardar permisos
             } catch (error) {
                 setError('Error fetching tasks');
                 console.error('Error fetching tasks:', error);
@@ -29,7 +35,7 @@ export default function Tasks(props) {
         };
 
         getTasks();
-    }, []); // El array vacío asegura que useEffect solo se ejecute una vez
+    }, []);
 
     const handleEdit = (task) => {
         setEditingTask(task);
@@ -42,20 +48,25 @@ export default function Tasks(props) {
         handleTaskUpdate(); // Recargar tareas después de cerrar el formulario
     };
 
-
     const handleTaskUpdate = async () => {
         try {
             const data = await fetchTasks(); // Recargar tareas
-            setTasks(data);
+            setTasks(Array.isArray(data.tasks) ? data.tasks : []);
         } catch (error) {
             console.error('Error fetching tasks:', error);
         }
     };
 
-    const filteredTasks = tasks.filter(task =>
+    const filteredTasks = Array.isArray(tasks) ? tasks.filter(task =>
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         task.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    ) : [];
+
+    // Verificar si el usuario tiene los permisos necesarios
+    const isAdmin = roles.includes('admin');
+    const canEdit = permissions.includes('edit articles');
+    const canDelete = permissions.includes('delete articles');
+    const canView = permissions.includes('view articles');
 
     return (
         <AuthenticatedLayout
@@ -76,28 +87,29 @@ export default function Tasks(props) {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="search-input"
                                 />
-                                <button
-                                    onClick={() => {
-                                        setEditingTask(null);
-                                        setIsModalOpen(true);
-                                    }}
-                                    className="add-task-button"
-                                >
-                                    Agregar Nueva Tarea
-                                </button>
+                                {isAdmin && ( // Mostrar botón solo si es admin
+                                    <button
+                                        onClick={() => {
+                                            setEditingTask(null);
+                                            setIsModalOpen(true);
+                                        }}
+                                        className="add-task-button"
+                                    >
+                                        Agregar Nueva Tarea
+                                    </button>
+                                )}
                             </div>
                             {loading ? (
                                 <p>Loading...</p>
                             ) : error ? (
                                 <p>{error}</p>
                             ) : (
-                                <>
-                                    <TaskList
-                                        tasks={filteredTasks}
-                                        onEdit={handleEdit}
-                                        onTaskUpdate={handleTaskUpdate}
-                                    />
-                                </>
+                                <TaskList
+                                    tasks={filteredTasks}
+                                    onEdit={canEdit ? handleEdit : null} // Permitir edición según permiso
+                                    onTaskUpdate={handleTaskUpdate}
+                                    userRole={isAdmin ? 'admin' : 'user'} // Pasar el rol del usuario
+                                />
                             )}
                         </div>
                     </div>

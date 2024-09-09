@@ -6,9 +6,10 @@ const API_URL = 'http://127.0.0.1:8000/api/tasks'; // URL actual del servidor
 export const fetchTasks = async () => {
     try {
         const response = await axios.get(API_URL);
+        // console.log('Datos recibidos:', response.data.tasks); // Muestra los datos recibidos en consola
         return response.data;
     } catch (error) {
-        console.error('Error al obtener las tareas:', error);
+        console.error('Error al obtener las tareas:', error); // Muestra el error en consola
         throw new Error('Error al obtener las tareas');
     }
 };

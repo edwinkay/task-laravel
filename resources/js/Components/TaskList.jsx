@@ -1,8 +1,8 @@
 import React from 'react';
-import { deleteTask, updateTask } from '../services/taskService';
-import '../../css/TaskManager.css';
+import { deleteTask, updateTask } from '../services/taskService'; // Ajusta la ruta según sea necesario
 
-const TaskList = ({ tasks, onEdit, onTaskUpdate }) => {
+const TaskList = ({ tasks, onEdit, onTaskUpdate, userRole }) => {
+
     const handleDelete = async (taskId) => {
         try {
             await deleteTask(taskId);
@@ -25,7 +25,7 @@ const TaskList = ({ tasks, onEdit, onTaskUpdate }) => {
     return (
         <ul className="task-list">
             {tasks.map((task) => (
-                <li key={task.id}>
+                <li key={task.id} className="task-item">
                     <h3 className="titulo">{task.title}</h3>
                     <p>{task.description}</p>
                     <label>
@@ -33,11 +33,16 @@ const TaskList = ({ tasks, onEdit, onTaskUpdate }) => {
                             type="checkbox"
                             checked={task.completed}
                             onChange={() => handleToggleCompletion(task)}
+                            disabled={userRole === 'user'} // Deshabilitar si es 'user'
                         />
                         {task.completed ? 'Completada' : 'Incompleta'}
                     </label>
-                    <button className="edit" onClick={() => onEdit(task)}>Editar</button>
-                    <button onClick={() => handleDelete(task.id)}>Eliminar</button>
+                    {userRole === 'admin' && ( // Solo permitir editar/eliminar a admin
+                        <>
+                            <button className="edit" onClick={() => onEdit(task)}>Editar</button>
+                            <button className="delete" onClick={() => handleDelete(task.id)}>Eliminar</button>
+                        </>
+                    )}
                 </li>
             ))}
         </ul>

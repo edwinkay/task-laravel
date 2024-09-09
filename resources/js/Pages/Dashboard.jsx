@@ -1,14 +1,52 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Dashboard(props) {
     const { auth } = props;
-    const roles = auth?.roles || [];
-    const permissions = auth?.permissions || [];
+    const [selectedRole, setSelectedRole] = useState('');
+    const [selectedPermission, setSelectedPermission] = useState('');
 
-    console.log('props:', props);
-    console.log('Roles:', roles);
-    console.log('Permissions:', permissions);
+    const roles = ['admin', 'user'];
+    const permissions = ['edit articles', 'delete articles', 'view articles', 'all permissions'];
+
+    const handleRoleChange = (e) => setSelectedRole(e.target.value);
+    const handlePermissionChange = (e) => setSelectedPermission(e.target.value);
+
+
+    const assignRole = async () => {
+        if (!roles.includes(selectedRole)) return; // Validar que el rol sea válido
+
+        await fetch('/api/assign-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ role: selectedRole, userId: auth.user.id })
+        });
+    };
+
+    const assignPermission = async () => {
+        let permissionsToAssign = [];
+
+        if (selectedPermission === 'all permissions') {
+            permissionsToAssign = ['edit articles', 'delete articles', 'view articles'];
+        } else if (permissions.includes(selectedPermission)) {
+            permissionsToAssign = [selectedPermission];
+        } else {
+            return; // No hacer nada si el permiso no es válido
+        }
+
+        await fetch('/api/assign-permission', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ permissions: permissionsToAssign, userId: auth.user.id })
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -29,11 +67,11 @@ export default function Dashboard(props) {
                             <p>You're logged in!</p>
 
                             {/* Mostrar roles */}
-                            {roles.length > 0 && (
+                            {auth.roles.length > 0 && (
                                 <div>
                                     <h3 className="mt-4 font-bold">Roles:</h3>
                                     <ul>
-                                        {roles.map((role, index) => (
+                                        {auth.roles.map((role, index) => (
                                             <li key={index}>{role}</li>
                                         ))}
                                     </ul>
@@ -41,16 +79,40 @@ export default function Dashboard(props) {
                             )}
 
                             {/* Mostrar permisos */}
-                            {permissions.length > 0 && (
+                            {auth.permissions.length > 0 && (
                                 <div>
                                     <h3 className="mt-4 font-bold">Permissions:</h3>
                                     <ul>
-                                        {permissions.map((permission, index) => (
+                                        {auth.permissions.map((permission, index) => (
                                             <li key={index}>{permission}</li>
                                         ))}
                                     </ul>
                                 </div>
                             )}
+
+                            {/* Formulario para asignar rol */}
+                            <div>
+                                <h3 className="mt-4 font-bold">Assign Role</h3>
+                                <select value={selectedRole} onChange={handleRoleChange}>
+                                    <option value="">Select Role</option>
+                                    {roles.map((role) => (
+                                        <option key={role} value={role}>{role}</option>
+                                    ))}
+                                </select>
+                                <button onClick={assignRole}>Assign Role</button>
+                            </div>
+
+                            {/* Formulario para asignar permiso */}
+                            <div>
+                                <h3 className="mt-4 font-bold">Assign Permission</h3>
+                                <select value={selectedPermission} onChange={handlePermissionChange}>
+                                    <option value="">Select Permission</option>
+                                    {permissions.map((permission) => (
+                                        <option key={permission} value={permission}>{permission}</option>
+                                    ))}
+                                </select>
+                                <button onClick={assignPermission}>Assign Permission</button>
+                            </div>
                         </div>
                     </div>
                 </div>

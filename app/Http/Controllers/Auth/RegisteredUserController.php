@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class RegisteredUserController extends Controller
 {
@@ -37,11 +39,26 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Crear el usuario
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        // Asignar el rol de 'user' al nuevo usuario
+        $user->assignRole('user');
+
+        // Verificar si el permiso 'view articles' existe, y asignarlo si no está asignado
+        $permission = Permission::findById(3); // Asumiendo que el ID del permiso es 3
+
+        if ($permission) {
+            $user->givePermissionTo($permission);
+        } else {
+            // Manejar el caso en que el permiso no existe
+            // Por ejemplo, puedes crear el permiso o manejar el error según tu lógica
+            // Permission::create(['name' => 'view articles']);
+        }
 
         event(new Registered($user));
 
