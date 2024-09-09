@@ -1,6 +1,6 @@
 # Mi Proyecto de Tareas
 
-Este es un proyecto para gestionar tareas. al lado del Backend hechom por laravel y php, se puede registrar una nuevo usuario o iniciar tambien se implemento el manejo de roles por usuario.
+Este es un proyecto para gestionar tareas. al lado del Backend hecho por laravel y php, se puede registrar un nuevo usuario o iniciar sesion tambien se implemento el manejo de roles por usuario.
 
 ## Instalación
 
