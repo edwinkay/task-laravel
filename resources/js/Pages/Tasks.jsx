@@ -1,26 +1,30 @@
-// resources/js/Pages/Tasks.jsx
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetchTasks } from '../services/taskService'; // Importa el servicio
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 
 export default function Tasks(props) {
     const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true); // Estado para manejar la carga
+    const [error, setError] = useState(null); // Estado para manejar errores
 
     useEffect(() => {
-        // Fetch tasks from the API
-        axios.get('/api/tasks', {
-            headers: {
-                'Authorization': `Bearer ${props.auth.token}` // Asegúrate de que el token esté disponible
-            }
-        })
-            .then(response => {
-                setTasks(response.data.data); // Ajusta según la estructura de datos
-            })
-            .catch(error => {
+        const getTasks = async () => {
+            try {
+                console.log('Token used for request:', props.auth.token); // Verifica el token
+                const data = await fetchTasks();
+                console.log('Tasks data:', data); // Verifica los datos obtenidos
+                setTasks(data); // Ajusta según la estructura de datos
+            } catch (error) {
+                setError('Error fetching tasks');
                 console.error('Error fetching tasks:', error);
-            });
-    }, []);
+            } finally {
+                setLoading(false); // Cambia el estado de carga
+            }
+        };
+
+        getTasks(); // Llama a la función para obtener las tareas
+    }, []); // El array vacío asegura que useEffect solo se ejecute una vez
 
     return (
         <AuthenticatedLayout
@@ -33,17 +37,25 @@ export default function Tasks(props) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
-                            <h3>Your Tasks:</h3>
-                            <ul>
-                                {tasks.map(task => (
-                                    <li key={task.id}>
-                                        <h4>{task.title}</h4>
-                                        <p>{task.description}</p>
-                                        <p>Due: {task.due_date}</p>
-                                        <p>Status: {task.completed ? 'Completed' : 'Not Completed'}</p>
-                                    </li>
-                                ))}
-                            </ul>
+                            {loading ? (
+                                <p>Loading...</p> // Mensaje de carga
+                            ) : error ? (
+                                <p>{error}</p> // Mensaje de error
+                            ) : (
+                                <>
+                                    <h3>Your Tasks:</h3>
+                                    <ul>
+                                        {tasks.map(task => (
+                                            <li key={task.id}>
+                                                <h4>{task.title}</h4>
+                                                <p>{task.description}</p>
+                                                <p>Due: {task.due_date}</p>
+                                                <p>Status: {task.completed ? 'Completed' : 'Not Completed'}</p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

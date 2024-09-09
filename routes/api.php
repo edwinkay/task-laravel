@@ -21,3 +21,4 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rutas para tareas
     Route::apiResource('tasks', TaskController::class);
 });
+Route::middleware('auth:sanctum')->get('/tasks', [TaskController::class, 'index']);
