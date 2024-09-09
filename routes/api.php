@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\AdminApiController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\UserController;
 
 // Ruta para obtener información del usuario autenticado
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -22,7 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rutas para tareas
     Route::apiResource('tasks', TaskController::class);
 });
-Route::post('/api/assign-role', [RolePermissionController::class, 'assignRole']);
-Route::post('/api/assign-permission', [RolePermissionController::class, 'assignPermission']);
+Route::get('/users', [UserController::class, 'getUsers']);
+Route::post('/assign-role', [UserController::class, 'assignRole']);
+Route::post('/assign-permission', [UserController::class, 'assignPermission']);
+
 
 Route::middleware('auth:sanctum')->get('/tasks', [TaskController::class, 'index']);
