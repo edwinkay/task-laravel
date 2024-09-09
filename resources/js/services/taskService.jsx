@@ -6,7 +6,6 @@ const API_URL = 'http://127.0.0.1:8000/api/tasks'; // URL actual del servidor
 export const fetchTasks = async () => {
     try {
         const response = await axios.get(API_URL);
-        console.log('Response from API:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error al obtener las tareas:', error);
@@ -17,10 +16,12 @@ export const fetchTasks = async () => {
 // Agregar una nueva tarea (POST)
 export const addTask = async (task) => {
     try {
-        const response = await axios.post(API_URL, task, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        const response = await axios.post('http://127.0.0.1:8000/api/tasks', {
+            title: task.title,
+            description: task.description,
+            due_date: task.due_date || '2024-12-31', // Agrega una fecha por defecto si no se proporciona
+            completed: task.completed || 0, // Por defecto, asume que no está completado
+            user_id: task.user_id || 1 // Asegúrate de enviar el user_id correcto
         });
         return response.data;
     } catch (error) {

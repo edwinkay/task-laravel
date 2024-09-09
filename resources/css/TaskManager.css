@@ -1,12 +1,11 @@
 
 .fixed-header {
-    position: fixed;
+    /* position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    background-color: #fff;
+    right: 0; */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 10px 20px;
+    padding: 10px 0px;
     z-index: 1000;
 
 }
@@ -17,6 +16,7 @@
 }
 
 .search-input {
+    color: black;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -27,9 +27,8 @@
 }
 
 .add-task-button {
-    position: absolute;
-    top: 10px;
-    right: 20px;
+        position: absolute;
+    right: 4%;
     padding: 8px 20px;
     background-color: #007bff;
     color: #fff;
@@ -37,7 +36,7 @@
     border-radius: 4px;
     font-size: 16px;
     cursor: pointer;
-    z-index: 1000; /* Asegúrate de que esté sobre otros elementos */
+    z-index: 1000;
 }
 
 .add-task-button:hover {
@@ -116,11 +115,13 @@
 .modal-body button:hover {
     background-color: #0056b3;
 }
-
-/* Estilos para la lista de tareas */
-.task-list {
-    margin-top: 100px; /* Espacio suficiente para el título y el modal */
+.titulo {
+    color: #555;
 }
+
+/* .task-list {
+    margin-top: 100px;
+} */
 
 .task-list ul {
     list-style: none;

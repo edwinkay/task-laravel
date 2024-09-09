@@ -1,30 +1,61 @@
-import { useEffect, useState } from 'react';
-import { fetchTasks } from '../services/taskService'; // Importa el servicio
+import React, { useState, useEffect } from 'react';
+import { fetchTasks } from '../services/taskService'; // Ajusta la ruta según sea necesario
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import TaskForm from '../Components/TaskForm';
+import TaskList from '../Components/TaskList';
+import '../../css/TaskManager.css';
 
 export default function Tasks(props) {
     const [tasks, setTasks] = useState([]);
-    const [loading, setLoading] = useState(true); // Estado para manejar la carga
-    const [error, setError] = useState(null); // Estado para manejar errores
+    const [editingTask, setEditingTask] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const getTasks = async () => {
             try {
                 console.log('Token used for request:', props.auth.token); // Verifica el token
                 const data = await fetchTasks();
-                console.log('Tasks data:', data); // Verifica los datos obtenidos
                 setTasks(data); // Ajusta según la estructura de datos
             } catch (error) {
                 setError('Error fetching tasks');
                 console.error('Error fetching tasks:', error);
             } finally {
-                setLoading(false); // Cambia el estado de carga
+                setLoading(false);
             }
         };
 
-        getTasks(); // Llama a la función para obtener las tareas
+        getTasks();
     }, []); // El array vacío asegura que useEffect solo se ejecute una vez
+
+    const handleEdit = (task) => {
+        setEditingTask(task);
+        setIsModalOpen(true);
+    };
+
+    const handleFormClose = () => {
+        setEditingTask(null);
+        setIsModalOpen(false);
+        handleTaskUpdate(); // Recargar tareas después de cerrar el formulario
+    };
+
+
+    const handleTaskUpdate = async () => {
+        try {
+            const data = await fetchTasks(); // Recargar tareas
+            setTasks(data);
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+        }
+    };
+
+    const filteredTasks = tasks.filter(task =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <AuthenticatedLayout
@@ -37,29 +68,54 @@ export default function Tasks(props) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
+                            <div className="fixed-header">
+                                <input
+                                    type="text"
+                                    placeholder="Buscar tareas..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="search-input"
+                                />
+                                <button
+                                    onClick={() => {
+                                        setEditingTask(null);
+                                        setIsModalOpen(true);
+                                    }}
+                                    className="add-task-button"
+                                >
+                                    Agregar Nueva Tarea
+                                </button>
+                            </div>
                             {loading ? (
-                                <p>Loading...</p> // Mensaje de carga
+                                <p>Loading...</p>
                             ) : error ? (
-                                <p>{error}</p> // Mensaje de error
+                                <p>{error}</p>
                             ) : (
                                 <>
-                                    <h3>Your Tasks:</h3>
-                                    <ul>
-                                        {tasks.map(task => (
-                                            <li key={task.id}>
-                                                <h4>{task.title}</h4>
-                                                <p>{task.description}</p>
-                                                <p>Due: {task.due_date}</p>
-                                                <p>Status: {task.completed ? 'Completed' : 'Not Completed'}</p>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <TaskList
+                                        tasks={filteredTasks}
+                                        onEdit={handleEdit}
+                                        onTaskUpdate={handleTaskUpdate}
+                                    />
                                 </>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
+            {isModalOpen && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h2>{editingTask ? 'Editar Tarea' : 'Agregar Nueva Tarea'}</h2>
+                            <button onClick={handleFormClose}>Cerrar</button>
+                        </div>
+                        <div className="modal-body">
+                            <TaskForm existingTask={editingTask} onFormClose={handleFormClose} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }

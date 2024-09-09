@@ -26,7 +26,7 @@ const TaskList = ({ tasks, onEdit, onTaskUpdate }) => {
         <ul className="task-list">
             {tasks.map((task) => (
                 <li key={task.id}>
-                    <h3>{task.title}</h3>
+                    <h3 className="titulo">{task.title}</h3>
                     <p>{task.description}</p>
                     <label>
                         <input
